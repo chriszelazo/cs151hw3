@@ -25,7 +25,7 @@ with open("hw3train.txt") as f:
 def calcEntropy(flowers):
 	labelCounts = [0,0,0]
 	for flower in flowers:
-		labelCounts[int(flower.label-1)]
+		labelCounts[int(flower.label-1)] += 1
 		
 	p1 = labelCounts[0] / float(len(flowers))  	# P(X=1)
 	p2 = labelCounts[1] / float(len(flowers))	# P(X=2)
