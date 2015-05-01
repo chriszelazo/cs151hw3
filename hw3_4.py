@@ -11,6 +11,18 @@ class Flower:
 	def __init__(self, vector, label):
 		self.vector = vector
 		self.label = label
+		
+class Node:
+	# ctor input:
+		# data: list of Flower objects in the node
+		# label: set to None for non-leaf nodes
+		# left/right: left/right child (Node obj)
+	def __init__(self, data, label, left, right):
+		self.data = data
+		self.label = label
+		self.left = left
+		self.right = right
+		
 
 with open("hw3test.txt") as f:
 	test = [map(float, line.rstrip().split(' ')) for line in f]
@@ -41,3 +53,35 @@ def calcEntropy(flowers):
 		entropy = -(p1*math.log(p1)) - (p2*math.log(p2)) - (p3*math.log(p3))  
 		
 	return entropy
+
+root = buildTree(train)
+
+# isPure
+# checks if a node is pure (contains only one label)
+def isPure(data):
+	labelCounts = [0,0,0]
+	for flower in data:
+		labelCounts[int(flower.label-1)] += 1
+		
+	if labelCounts[0] == len(data) || labelCounts[1] == len(data) || labelCounts[2] == len(data):
+		return True
+	else:
+		return False
+
+# splitData
+# input: sum dahta [biglist]
+# out: [[list1],[list2]]
+def splitData(data):
+	
+
+# buildTree: recursive
+# pass the data and a tree shall rise
+def buildTree(data):
+	if isPure(data): 
+		return Node(data, data[0].label, None, None)
+	else:
+		# split data
+		# recurse left
+		# recurse right
+		# check the op
+
