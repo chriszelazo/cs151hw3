@@ -67,6 +67,7 @@ def isPure(data):
 # input: sum dahta [biglist], rule (feature, threshold)
 # out: (feature, thresh, entropy, list1, list2)
 def splitData(data, rule):
+	pdb.set_trace()
 	flists = [[],[],[],[]]
 	# loop through the features
 	feature = rule[0]
@@ -83,8 +84,6 @@ def splitData(data, rule):
 		else:
 			list2.append(thingy)
 	
-	print "Thresh: ", threshold
-	
 	return [list1, list2]		
 	
 	
@@ -96,7 +95,7 @@ def generateRules(data):
 		prevPoint = None
 		for point in flists[feature]:
 			if prevPoint != None:
-				threshold = (point.vector[feature] + prevPoint.vector[feature]) / 2.0
+				threshold = (flists[feature][0].vector[feature] + flists[feature][len(flists[feature])-1].vector[feature]) / 2.0#(point.vector[feature] + prevPoint.vector[feature]) / 2.0
 				list1 = []
 				list2 = []
 				for thingy in flists[feature]:
@@ -117,11 +116,9 @@ def buildTree(data, rules):
 	if isPure(data) or len(rules) == 0:
 		return Node(data, data[0].label, None, None, None)
 	else:
-
 		dopeSlicings = splitData(data, rules[0])
-		
 		zruke = rules.pop(0)
-		
+		pdb.set_trace()
 		leftNode = None
 		# recurse left
 		if len(dopeSlicings[0]) > 0:
@@ -136,4 +133,6 @@ def buildTree(data, rules):
 		
 rulez = generateRules(train)
 print rulez
-print buildTree(train, rulez).rule
+xXx420treeBlazeit420xXx = buildTree(train, rulez)
+
+
