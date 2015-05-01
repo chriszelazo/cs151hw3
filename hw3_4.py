@@ -72,8 +72,16 @@ def isPure(data):
 # input: sum dahta [biglist]
 # out: [[list1],[list2]]
 def splitData(data):
+	flists = []
+	optimalSplit = None
+	# loop through the features
+	for feature in range(4):
+		flists[feature] = sorted(data, key=lambda x: x.vector[feature], reverse=True)	# sort data by feature
+		# loop through each point
+		for point in flists[feature]:
+			
+			prevPoint = point
 	
-
 # buildTree: recursive
 # pass the data and a tree shall rise
 def buildTree(data):
