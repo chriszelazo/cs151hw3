@@ -6,6 +6,7 @@
 # Chris Zelazo (A10863450)     #
 ################################
 import math
+import pdb
 
 class Flower:
 	def __init__(self, vector, label):
@@ -44,9 +45,9 @@ def calcEntropy(flowers):
 	p2 = labelCounts[1] / float(len(flowers)) if len(flowers) != 0 else 0.0	# P(X=2)
 	p3 = labelCounts[2] / float(len(flowers)) if len(flowers) != 0 else 0.0	# P(X=3)
 	
-	p1log = -(p1*math.log(p1)) if p1 != 0 else 0.0
-	p2log = -(p2*math.log(p2)) if p2 != 0 else 0.0
-	p3log = -(p3*math.log(p3)) if p3 != 0 else 0.0
+	p1log = -(p1*math.log(p1)) if p1 != 0.0 else 0.0
+	p2log = -(p2*math.log(p2)) if p2 != 0.0 else 0.0
+	p3log = -(p3*math.log(p3)) if p3 != 0.0 else 0.0
 	
 	return p1log + p2log + p3log
 
@@ -63,23 +64,39 @@ def isPure(data):
 		return False
 
 # splitData
-# input: sum dahta [biglist]
+# input: sum dahta [biglist], rule (feature, threshold)
 # out: (feature, thresh, entropy, list1, list2)
-def splitData(data):
+def splitData(data, rule):
 	flists = [[],[],[],[]]
-	optimalSplit = None		# (feature, thresh, entropy, list1, list2)
 	# loop through the features
+	feature = rule[0]
+	
+	flists[feature] = sorted(data, key=lambda x: x.vector[feature], reverse=True)	# sort data by feature
+
+	threshold = rule[1]
+	# split list
+	list1 = []
+	list2 = []
+	for thingy in flists[feature]:
+		if thingy.vector[feature] < threshold:
+			list1.append(thingy)
+		else:
+			list2.append(thingy)
+	
+	print "Thresh: ", threshold
+	
+	return [list1, list2]		
+	
+	
+def generateRules(data):
+	flists = [[],[],[],[]]
+	optimalSplits = [[],[],[],[]] # [[feature, thresh, entropy],[],[],[]]
 	for feature in range(4):
-		flists[feature] = sorted(data, key=lambda x: x.vector[feature], reverse=True)	# sort data by feature
-		# loop through each point
+		flists[feature] = sorted(data, key=lambda x: x.vector[feature], reverse=True)
 		prevPoint = None
-		c = 0
 		for point in flists[feature]:
-			c+=1
 			if prevPoint != None:
-				threshold = abs(point.vector[feature] + prevPoint.vector[feature]) / 2.0
-				
-				# split list
+				threshold = (point.vector[feature] + prevPoint.vector[feature]) / 2.0
 				list1 = []
 				list2 = []
 				for thingy in flists[feature]:
@@ -87,36 +104,36 @@ def splitData(data):
 						list1.append(thingy)
 					else:
 						list2.append(thingy)
-				
-				print "List 1: ", len(list1)
-				print "List 2: ", len(list2)
-				#print threshold, feature, c
 				entropy = calcEntropy(list1) + calcEntropy(list2)
-				if optimalSplit == None or entropy < optimalSplit[2]:
-					optimalSplit = (feature, threshold, entropy, list1, list2)
-				
+				if optimalSplits[feature] == [] or entropy < optimalSplits[feature][2]:
+					optimalSplits[feature] = [feature, threshold, entropy]
 			prevPoint = point
-			
-	return optimalSplit
 	
-# buildTree: recursive
-# pass the data and a tree shall rise
-def buildTree(data):
-	if isPure(data): 
-		print "\nData was pure: ", len(data)
+	optimalSplits.sort(key=lambda x: x[2], reverse=False)
+	return optimalSplits
+
+
+def buildTree(data, rules):
+	if isPure(data) or len(rules) == 0:
 		return Node(data, data[0].label, None, None, None)
 	else:
-		# split data
-		print "Data being split: ", len(data)
-		dopeSlicings = splitData(data)
-		# recurse left
-		if len(dopeSlicings[3]) > 0:
-			leftNode = buildTree(dopeSlicings[3])
-			
-		# recurse right
-		if len(dopeSlicings[4]) > 0:
-			rightNode = buildTree(dopeSlicings[4])
-		
-		return Node(None, None, dopeSlicings, leftNode[:], rightNode[:])
 
-print buildTree(train)
+		dopeSlicings = splitData(data, rules[0])
+		
+		zruke = rules.pop(0)
+		
+		leftNode = None
+		# recurse left
+		if len(dopeSlicings[0]) > 0:
+			leftNode = buildTree(dopeSlicings[0], rules)
+			
+		rightNode = None
+		# recurse right
+		if len(dopeSlicings[1]) > 0:
+			rightNode = buildTree(dopeSlicings[1], rules)
+			
+		return Node(None, None, zruke, leftNode, rightNode)
+		
+rulez = generateRules(train)
+print rulez
+print buildTree(train, rulez).rule
