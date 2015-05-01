@@ -67,7 +67,7 @@ def isPure(data):
 # input: sum dahta [biglist], rule (feature, threshold)
 # out: (feature, thresh, entropy, list1, list2)
 def splitData(data, rule):
-	pdb.set_trace()
+	#pdb.set_trace()
 	flists = [[],[],[],[]]
 	# loop through the features
 	feature = rule[0]
@@ -95,7 +95,9 @@ def generateRules(data):
 		prevPoint = None
 		for point in flists[feature]:
 			if prevPoint != None:
-				threshold = (flists[feature][0].vector[feature] + flists[feature][len(flists[feature])-1].vector[feature]) / 2.0#(point.vector[feature] + prevPoint.vector[feature]) / 2.0
+				#pdb.set_trace()
+				threshold = (point.vector[feature] + prevPoint.vector[feature]) / 2.0 
+				#threshold = (flists[feature][0].vector[feature] + flists[feature][len(flists[feature])-1].vector[feature]) / 2.0
 				list1 = []
 				list2 = []
 				for thingy in flists[feature]:
@@ -103,12 +105,13 @@ def generateRules(data):
 						list1.append(thingy)
 					else:
 						list2.append(thingy)
-				entropy = calcEntropy(list1) + calcEntropy(list2)
+				entropy = (len(list1)/float(len(flists[feature])))*calcEntropy(list1) + (len(list2)/float(len(flists[feature])))*calcEntropy(list2)
 				if optimalSplits[feature] == [] or entropy < optimalSplits[feature][2]:
 					optimalSplits[feature] = [feature, threshold, entropy]
 			prevPoint = point
 	
 	optimalSplits.sort(key=lambda x: x[2], reverse=False)
+	print optimalSplits
 	return optimalSplits
 
 
@@ -134,5 +137,25 @@ def buildTree(data, rules):
 rulez = generateRules(train)
 print rulez
 xXx420treeBlazeit420xXx = buildTree(train, rulez)
+pdb.set_trace()
 
+def testPoint(root, dataPoint):
+	currentNode = root
+	while currentNode.label == None:
+		feat = currentNode.rule[0]
+		thresh = currentNode.rule[1]
+		if dataPoint.vector[feat] < thresh:
+			currentNode = currentNode.left
+		else:
+			currentNode = currentNode.right
+	result = currentNode.label
+	if result == dataPoint.label:
+		return 1
+	else:
+		return 0
+	
+errCount = 0	
+for point in test:
+	errCount += testPoint(xXx420treeBlazeit420xXx, point)
+print "test error: {}".format(1-(errCount / float(len(test))))
 
