@@ -31,5 +31,13 @@ def calcEntropy(flowers):
 	p2 = labelCounts[1] / float(len(flowers))	# P(X=2)
 	p3 = labelCounts[2] / float(len(flowers))	# P(X=3)
 	
-	# entropy eqn
-	return -(p1*math.log(p1)) - (p2*math.log(p2)) - (p2*math.log(p3))
+	if p1 == 0.0:
+		entropy = - (p2*math.log(p2)) - (p3*math.log(p3))
+	elif p2 == 0.0:
+		entropy = -(p1*math.log(p1)) - (p3*math.log(p3))
+	elif p3 == 0.0:
+		entropy = -(p1*math.log(p1)) - (p2*math.log(p2))
+	else:
+		entropy = -(p1*math.log(p1)) - (p2*math.log(p2)) - (p3*math.log(p3))  
+		
+	return entropy
