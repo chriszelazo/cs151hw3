@@ -36,29 +36,23 @@ with open("hw3train.txt") as f:
 # Calculates entropy given a list of flower objects
 # jizzes out a float
 def calcEntropy(flowers):
-	print flowers
 	labelCounts = [0,0,0]
 	for flower in flowers:
 		labelCounts[int(flower.label-1)] += 1
 		
-	p1 = labelCounts[0] / float(len(flowers))  	# P(X=1)
-	p2 = labelCounts[1] / float(len(flowers))	# P(X=2)
-	p3 = labelCounts[2] / float(len(flowers))	# P(X=3)
+	p1 = labelCounts[0] / float(len(flowers)) if len(flowers) != 0 else 0.0	# P(X=1)
+	p2 = labelCounts[1] / float(len(flowers)) if len(flowers) != 0 else 0.0	# P(X=2)
+	p3 = labelCounts[2] / float(len(flowers)) if len(flowers) != 0 else 0.0	# P(X=3)
 	
-	if p1 == 0.0:
-		entropy = - (p2*math.log(p2)) - (p3*math.log(p3))
-	elif p2 == 0.0:
-		entropy = -(p1*math.log(p1)) - (p3*math.log(p3))
-	elif p3 == 0.0:
-		entropy = -(p1*math.log(p1)) - (p2*math.log(p2))
-	else:
-		entropy = -(p1*math.log(p1)) - (p2*math.log(p2)) - (p3*math.log(p3))  
-		
-	return entropy
+	p1log = -(p1*math.log(p1)) if p1 != 0 else 0.0
+	p2log = -(p2*math.log(p2)) if p2 != 0 else 0.0
+	p3log = -(p3*math.log(p3)) if p3 != 0 else 0.0
+	
+	return p1log + p2log + p3log
 
 # isPure
 # checks if a node is pure (contains only one label)
-def isPure(data):
+def isPure(data):	
 	labelCounts = [0,0,0]
 	for flower in data:
 		labelCounts[int(flower.label-1)] += 1
@@ -79,9 +73,11 @@ def splitData(data):
 		flists[feature] = sorted(data, key=lambda x: x.vector[feature], reverse=True)	# sort data by feature
 		# loop through each point
 		prevPoint = None
+		c = 0
 		for point in flists[feature]:
+			c+=1
 			if prevPoint != None:
-				threshold = abs(point.vector[feature] - prevPoint.vector[feature]) / 2.0
+				threshold = abs(point.vector[feature] + prevPoint.vector[feature]) / 2.0
 				
 				# split list
 				list1 = []
@@ -91,7 +87,10 @@ def splitData(data):
 						list1.append(thingy)
 					else:
 						list2.append(thingy)
-				print list1, list2
+				
+				print "List 1: ", len(list1)
+				print "List 2: ", len(list2)
+				#print threshold, feature, c
 				entropy = calcEntropy(list1) + calcEntropy(list2)
 				if optimalSplit == None or entropy < optimalSplit[2]:
 					optimalSplit = (feature, threshold, entropy, list1, list2)
@@ -104,15 +103,20 @@ def splitData(data):
 # pass the data and a tree shall rise
 def buildTree(data):
 	if isPure(data): 
+		print "\nData was pure: ", len(data)
 		return Node(data, data[0].label, None, None, None)
 	else:
 		# split data
+		print "Data being split: ", len(data)
 		dopeSlicings = splitData(data)
 		# recurse left
-		leftNode = buildTree(dopeSlicings[3])
+		if len(dopeSlicings[3]) > 0:
+			leftNode = buildTree(dopeSlicings[3])
+			
 		# recurse right
-		rightNode = buildTree(dopeSlicings[4])
+		if len(dopeSlicings[4]) > 0:
+			rightNode = buildTree(dopeSlicings[4])
 		
-		return Node(None, None, dopeSlicings, leftNode, rightNode)
+		return Node(None, None, dopeSlicings, leftNode[:], rightNode[:])
 
 print buildTree(train)
