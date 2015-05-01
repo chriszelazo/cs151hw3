@@ -13,12 +13,11 @@ class Flower:
 
 with open("hw3test.txt") as f:
 	test = [map(float, line.rstrip().split(' ')) for line in f]
-	test = [Flower(l[:3], l[4]) for l in test]
+	test = [Flower(l[:4], l[4]) for l in test]
 
 with open("hw3train.txt") as f:
 	train = [map(float, line.rstrip().split(' ')) for line in f]
-	train = [Flower(l[:3], l[4]) for l in train]
-
+	train = [Flower(l[:4], l[4]) for l in train]
 
 print train[4].vector
 print train[4].label
